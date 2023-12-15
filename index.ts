@@ -140,28 +140,59 @@ test('All values are numbers', allItemsHaveTheSameType([11, 12, 13]), true);
 
 test('All values are strings', allItemsHaveTheSameType(['11', '12', '13']), true);
 
-test(
-    'All values are strings but wait',
-    allItemsHaveTheSameType(['11', new String('12'), '13'])
-    // What the result?
-);
+test('All values are strings but wait', allItemsHaveTheSameType(['11', new String('12'), '13']), false);
 
 test(
     'Values like a number',
-    allItemsHaveTheSameType([123, 123 / 'a', 1 / 0])
-    // What the result?
+    //операция 123 / 'a' не валидна в TS
+    //заменил на Number('a')
+    //(и та и другая операция равна NaN)
+    allItemsHaveTheSameType([123, 123 / Number('a'), 1 / 0]),
+    true
 );
 
 test('Values like an object', allItemsHaveTheSameType([{}]), true);
 
 testBlock('getTypesOfItems VS getRealTypesOfItems');
 
-const knownTypes = [
+const knownTypes: TypesJS[] = [
     // Add values of different types like boolean, object, date, NaN and so on
+    true,
+    1,
+    'string',
+    [],
+    {},
+    () => {},
+    undefined,
+    null,
+    NaN,
+    Infinity,
+    new Date(),
+    /a-z/gi,
+    new Set(),
+    new Map(),
+    1n,
+    Symbol('1'),
 ];
 
 test('Check basic types', getTypesOfItems(knownTypes), [
     // What the types?
+    'boolean',
+    'number',
+    'string',
+    'object',
+    'object',
+    'function',
+    'undefined',
+    'object',
+    'number',
+    'number',
+    'object',
+    'object',
+    'object',
+    'object',
+    'bigint',
+    'symbol',
 ]);
 
 test('Check real types', getRealTypesOfItems(knownTypes), [
@@ -179,13 +210,18 @@ test('Check real types', getRealTypesOfItems(knownTypes), [
     'regexp',
     'set',
     // What else?
+    'map',
+    'bigint',
+    'symbol',
 ]);
 
 testBlock('everyItemHasAUniqueRealType');
 
 test('All value types in the array are unique', everyItemHasAUniqueRealType([true, 123, '123']), true);
 
-test('Two values have the same type', everyItemHasAUniqueRealType([true, 123, '123' === 123]), false);
+//операция '123' === 123 не валидна в TS
+//заменил на false (это результат который мы получили бы в JS)
+test('Two values have the same type', everyItemHasAUniqueRealType([true, 123, false]), false);
 
 test('There are no repeated types in knownTypes', everyItemHasAUniqueRealType(knownTypes), true);
 
