@@ -41,19 +41,22 @@ const test = (whatWeTest: string, actualResult: TypesJS, expectedResult: TypesJS
 
 // Functions
 
-const getType = (value) => {
+const getType = (value: TypesJS) => {
     // Return string with a native JS type of value
+    return typeof value;
 };
 
-const getTypesOfItems = (arr) => {
+const getTypesOfItems = (arr: TypesJS[]) => {
     // Return array with types of items of given array
+    return arr.map((item) => typeof item);
 };
 
-const allItemsHaveTheSameType = (arr) => {
+const allItemsHaveTheSameType = (arr: TypesJS[]) => {
     // Return true if all items of array have the same type
+    return arr.every((item) => typeof item === typeof arr[0]);
 };
 
-const getRealType = (value) => {
+const getRealType = (value: TypesJS | unknown) => {
     // Return string with a “real” type of value.
     // For example:
     //     typeof new Date()       // 'object'
@@ -62,21 +65,56 @@ const getRealType = (value) => {
     //     getRealType(NaN)        // 'NaN'
     // Use typeof, instanceof and some magic. It's enough to have
     // 12-13 unique types but you can find out in JS even more :)
+    const valueType = typeof value;
+
+    if (Number.isNaN(value)) return 'NaN';
+
+    if (valueType === 'number' && !Number.isFinite(value)) return 'Infinity';
+
+    if (valueType === 'number' && !Number.isFinite(value)) return 'Infinity';
+
+    if (valueType === 'object') {
+        if (value === null) return 'null';
+        if (value instanceof RegExp) return 'regexp';
+        if (value instanceof Array) return 'array';
+        if (value instanceof Map) return 'map';
+        if (value instanceof Set) return 'set';
+        if (value instanceof Date) return 'date';
+    }
+
+    return valueType;
 };
 
-const getRealTypesOfItems = (arr) => {
+const getRealTypesOfItems = (arr: TypesJS[]) => {
     // Return array with real types of items of given array
+    return arr.map((item) => getRealType(item));
 };
 
-const everyItemHasAUniqueRealType = (arr) => {
+const everyItemHasAUniqueRealType = (arr: TypesJS[]) => {
     // Return true if there are no items in array
     // with the same real type
+    const realTypesSet = new Set(getRealTypesOfItems(arr));
+
+    return realTypesSet.size === arr.length;
 };
 
-const countRealTypes = (arr) => {
+const countRealTypes = (arr: TypesJS[]) => {
     // Return an array of arrays with a type and count of items
     // with this type in the input array, sorted by type.
     // Like an Object.entries() result: [['boolean', 3], ['string', 5]]
+    type IStorage = {
+        [key: string]: number;
+    };
+
+    const storage: IStorage = {};
+
+    for (const item of arr) {
+        const realType: string = getRealType(item);
+
+        storage[realType] = (storage[realType] || 0) + 1;
+    }
+
+    return Object.entries(storage).sort((a, b) => a[0].localeCompare(b[0]));
 };
 
 // Tests
