@@ -51,6 +51,14 @@ const getTypesOfItems = (arr: TypesJS[]) => {
     return arr.map((item) => typeof item);
 };
 
+const everyItemHasAUniqueType = (arr: TypesJS[]) => {
+    // Return true if there are no items in array
+    // with the same type
+    const typesSet = new Set(getTypesOfItems(arr));
+
+    return typesSet.size === arr.length;
+};
+
 const allItemsHaveTheSameType = (arr: TypesJS[]) => {
     // Return true if all items of array have the same type
     return arr.every((item) => typeof item === typeof arr[0]);
@@ -88,6 +96,13 @@ const getRealType = (value: TypesJS | unknown) => {
 const getRealTypesOfItems = (arr: TypesJS[]) => {
     // Return array with real types of items of given array
     return arr.map((item) => getRealType(item));
+};
+
+const allItemsHaveTheSameRealType = (arr: TypesJS[]) => {
+    // Return true if all items of array have the same real type
+    const realTypesSet = getRealTypesOfItems(arr);
+
+    return realTypesSet.every((item) => typeof item === typeof arr[0]);
 };
 
 const everyItemHasAUniqueRealType = (arr: TypesJS[]) => {
@@ -240,3 +255,29 @@ test('Counted unique types are sorted', countRealTypes([{}, null, true, !null, !
 ]);
 
 // Add several positive and negative tests
+
+testBlock('everyItemHasAUniqueType');
+
+test('All value types in the array are unique', everyItemHasAUniqueType([{}, undefined, 7]), true);
+
+testBlock('allItemsHaveTheSameRealType');
+
+test('All values are null', allItemsHaveTheSameRealType(['null', 'null', 'null']), true);
+
+testBlock('empty arrays');
+
+test('Empty array', getTypesOfItems([]), []);
+test('Empty countRealTypes array', countRealTypes([]), []);
+
+testBlock('custom "new" objects');
+
+test('Type of new Date object', getType(new Date()), 'object');
+test('Real Type of new Date object', getRealType(new Date()), 'date');
+
+testBlock('mixed values');
+
+test('Mixed strings and numbers', allItemsHaveTheSameType([1, '2', 3]), false);
+
+test('Mixed strings and numbers (is Uniq)', everyItemHasAUniqueRealType([1, '2']), true);
+
+test('Mixed objects and arrays (is Uniq)', everyItemHasAUniqueRealType([{}, []]), true);
