@@ -1,17 +1,32 @@
+// Types
+type TypesJS = object | string | number | boolean | null | undefined | bigint | Symbol;
+
 // Test utils
 
-const testBlock = (name) => {
+const testBlock = (name: string) => {
     console.groupEnd();
     console.group(`# ${name}\n`);
 };
 
-const areEqual = (a, b) => {
+const areEqual = (a: TypesJS, b: TypesJS) => {
+    if (Array.isArray(a) && Array.isArray(b)) {
+        if (a.length !== b.length) return false;
+
+        for (let i = 0; i < a.length; i++) {
+            if (!areEqual(a[i], b[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     return a === b;
     // Compare arrays of primitives
     // Remember: [] !== []
 };
 
-const test = (whatWeTest, actualResult, expectedResult) => {
+const test = (whatWeTest: string, actualResult: TypesJS, expectedResult: TypesJS) => {
     if (areEqual(actualResult, expectedResult)) {
         console.log(`[OK] ${whatWeTest}\n`);
     } else {
